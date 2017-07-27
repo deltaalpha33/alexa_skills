@@ -63,9 +63,9 @@ class MySearchEngine():
             text: str
                 The text of the document to be indexed.
         """
-        
+        # check if document is already in index, and raise error if so
         if id in self.raw_text:
-            raise LookupError
+            raise LookupError("Document already in index - no need to add it!")
 
         self.raw_text[id] = text
         
@@ -91,9 +91,12 @@ class MySearchEngine():
             id: str
                 The identifier of the document to remove from the index.
         """
-        # check if document exists and throw exception if so
 
-        # ---------------------------------------------- TAKE FROM YOUR CODE ------------------------------------------------------
+        ids = self.raw_text.keys()
+        
+        # check if document exists and throw exception if not
+        if id not in ids:
+            raise LookupError("This document isn't in the index - no need to remove it!")
 
         # remove raw text for this document
         del self.raw_text[id]        
@@ -121,10 +124,12 @@ class MySearchEngine():
             id: str
                 The identifier of the document to return.
         """
-        
-        # check if document exists and throw exception if not
-
-         # ---------------------------------------------- TAKE FROM YOUR CODE ------------------------------------------------------
+       
+       ids = self.raw_text.keys()
+       
+       # check if document exists and throw exception if not
+       if id not in ids:
+            raise LookupError("This document isn't in the index!")
 
         return self.raw_text[id]  # return raw text
     
