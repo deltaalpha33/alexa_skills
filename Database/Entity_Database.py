@@ -59,6 +59,33 @@ class Entity_Database:
         """
         for link in self.rss_links:
             self.collect(link)
+        pass
+
+    def collect(self, url):
+        """
+        Collects documents from url, updates self.documents
+     
+        Parameters
+        ----------
+        url : str
+              URL from which to take news articles
+        """
+        
+        # read RSS feed
+        d = feedparser.parse(url) #get dictionary of links and entries
+
+
+        for entry in d["entries"]:
+            
+            link = entry["link"] #get link for an entry
+            #print("downloading: " + link)
+
+            text = get_text(link) #downloads from link and parses text
+            self.documents[link] = text
+
+        # saves texts into a pickle
+        #pickle.dump(texts, open(filename, "wb"))
+        pass
 
     def get_text(self, link):
         """
@@ -81,23 +108,12 @@ class Entity_Database:
 
         return text
 
-    def collect(self, url):
-        # read RSS feed
-        d = feedparser.parse(url) #get dictionary of links and entries
-
-
-        for entry in d["entries"]:
-            
-            link = entry["link"] #get link for an entry
-            #print("downloading: " + link)
-
-            text = get_text(link) #downloads from link and parses text
-            self.documents[link] = text
-
-        # saves texts into a pickle
-        #pickle.dump(texts, open(filename, "wb"))
-
     def extract_entities(self):
+        """
+        Searches through documents in self.documents, and stores all entities found into self.entities
+        
+        """
+        
         for link, raw_text in self.documents.items():
             # first, tokenize the text
             tokens = nltk.word_tokenize(raw_text) # returns list of tokenized words
@@ -109,7 +125,8 @@ class Entity_Database:
             document_entities = nltk.ne_chunk(parts_speech, binary=True)
 
             self.entities[link] = document_entities
-
+        pass
+    
     def find_in_doc(self, doc, ent):
         """
         Did the entity appear in the given document?
