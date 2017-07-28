@@ -125,10 +125,10 @@ class MySearchEngine():
                 The identifier of the document to return.
         """
        
-       ids = self.raw_text.keys()
+        ids = self.raw_text.keys()
        
-       # check if document exists and throw exception if not
-       if id not in ids:
+        # check if document exists and throw exception if not
+        if id not in ids:
             raise LookupError("This document isn't in the index!")
 
         return self.raw_text[id]  # return raw text
