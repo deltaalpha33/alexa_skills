@@ -7,6 +7,8 @@ import sys
 import nltk
 from nltk.tokenize import word_tokenize
 
+from Search_Engine import Search_Engine
+
 class Entity_Database:
 
     """
@@ -31,27 +33,34 @@ class Entity_Database:
     Entities co-ocurring w/ Counter keeping track
     """
 
-    def __init__(self, links):
+    def __init__(self, rss_links = list()):
 
         """
-        Creates global variables database, document list
+        Creates instance variables database, document list
         
         Parameters
         ----------
-        links : list, str
-                Array of links from which to get document text
+        rss_links : list, str
+                Array of rss urls to take news from
         """
         
-        self.database = {}
-        self.documents = {} # dict[id] = [document]
+        self.entities = dict()
+        self.documents = dict() # dict[id] = [document]
 
-        id = 1
-        for l in links:
-            documents[id] = get_text(l)
-            id += 1
-        pass
+        self.search_engine = Search_Engine()
 
-    def get_text(link):
+        self.rss_links = rss_links
+        self.scrape_from_rss()
+        self.extract_entities()
+
+    def scrape_from_rss(self):
+        """
+        Scrapes the Rss feeds in self.rss_links for news information and updates self.databse
+        """
+        for link in self.rss_links:
+            self.collect(link)
+
+    def get_text(self, link):
         """
         Convert HTML to plain text, while removing boilerplate.
         
@@ -72,46 +81,34 @@ class Entity_Database:
 
         return text
 
-    def collect(url, filename):
+    def collect(self, url):
         # read RSS feed
-        d = feedparser.parse(url)
+        d = feedparser.parse(url) #get dictionary of links and entries
 
-        # grab each article
-        texts = {}
 
         for entry in d["entries"]:
             
-            link = entry["link"]
-            print("downloading: " + link)
+            link = entry["link"] #get link for an entry
+            #print("downloading: " + link)
 
-            text = get_text(link)
-            texts[link] = text
+            text = get_text(link) #downloads from link and parses text
+            self.documents[link] = text
 
         # saves texts into a pickle
-        pickle.dump(texts, open(filename, "wb"))
-        pass
-
-    def database(self):
-        """
-        Returns
-        -------
-        database : dict[entity, ids]
-        """
-
-        return database
+        #pickle.dump(texts, open(filename, "wb"))
 
     def extract_entities(self):
+        for link, raw_text in self.documents.items():
+            # first, tokenize the text
+            tokens = nltk.word_tokenize(raw_text) # returns list of tokenized words
 
-        # first, tokenize the text
-        tokens = nltk.word_tokenize(raw_text) # returns list of tokenized words
+            # label the parts of speech
+            parts_speech = nltk.pos_tag(tokens)
 
-        # label the parts of speech
-        parts_speech = nltk.pos_tag(tokens)
+            # identify the named entities from the parts of speech
+            document_entities = nltk.ne_chunk(parts_speech, binary=True)
 
-        # identify the named entities from the parts of speech
-        entities = nltk.ne_chunk(parts_speech, binary=True)
-
-        return entities
+            self.entities[link] = document_entities
 
     def find_in_doc(self, doc, ent):
         """
