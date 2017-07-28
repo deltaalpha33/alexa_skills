@@ -7,7 +7,7 @@ import sys
 import nltk
 from nltk.tokenize import word_tokenize
 
-from Search_Engine import Search_Engine
+from Search_Engine import SearchEngine
 
 class Entity_Database:
 
@@ -47,7 +47,7 @@ class Entity_Database:
         self.entities = dict()
         self.documents = dict() # dict[id] = [document]
 
-        self.search_engine = Search_Engine()
+        self.search_engine = SearchEngine()
 
         self.rss_links = rss_links
         self.scrape_from_rss()
@@ -59,7 +59,8 @@ class Entity_Database:
         """
         for link in self.rss_links:
             self.collect(link)
-        pass
+
+        self.search_engine.add(self.documents) #checks if documents were already added
 
     def collect(self, url):
         """
@@ -74,18 +75,15 @@ class Entity_Database:
         # read RSS feed
         d = feedparser.parse(url) #get dictionary of links and entries
 
-
         for entry in d["entries"]:
-            
             link = entry["link"] #get link for an entry
             #print("downloading: " + link)
 
-            text = get_text(link) #downloads from link and parses text
+            text = self.get_text(link) #downloads from link and parses text
             self.documents[link] = text
 
         # saves texts into a pickle
         #pickle.dump(texts, open(filename, "wb"))
-        pass
 
     def get_text(self, link):
         """
@@ -125,8 +123,7 @@ class Entity_Database:
             document_entities = nltk.ne_chunk(parts_speech, binary=True)
 
             self.entities[link] = document_entities
-        pass
-    
+
     def find_in_doc(self, doc, ent):
         """
         Did the entity appear in the given document?
@@ -138,19 +135,11 @@ class Entity_Database:
 
         """
         pass
-
-    def rank_documents(self, ent):
-        """
-        Rank documents by how often the entity occured in each - in descending order of most to least often.
-        """
-
-    def add_document(self, docs):
+    def add_rss_feed(self):
         pass
 
-    def remove(self):
+    def remove_rss_feed(self):
         pass
 
-    def search(self):
-        pass
 
     
