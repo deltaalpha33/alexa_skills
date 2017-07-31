@@ -7,7 +7,7 @@ justext: pip install justext
 nltk: run nltk.download() in python environment
 
 
-# WEEK 4 PRIORITY MAP
+#WEEK 4 PRIORITY MAP
 
 VICTOR
 
