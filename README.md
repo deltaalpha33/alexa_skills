@@ -1,4 +1,4 @@
-INSTALLATION REQUIREMENTS
+## INSTALLATION REQUIREMENTS
 
 feedparser: pip install feedparser
 
@@ -7,9 +7,9 @@ justext: pip install justext
 nltk: run nltk.download() in python environment
 
 
-#WEEK 4 PRIORITY MAP
+## WEEK 4 PRIORITY MAP
 
-VICTOR
+### VICTOR
 
 1. Rock paper scissors
    Rough due: 8/01 (day 2)
@@ -18,20 +18,27 @@ VICTOR
    Rough due: 8/04 (day 5)
 
 
-DASH
+### DASH
 
 1. Face rec to Alexa skill
    Rough due: 8/01 (day 2)
+
+2. Style transfer
+   Rough due: 8/04 (day 5) if at all, maybe not until after
    
-2. Profile class -> database w/ name, face, to-dos, likes/dislikes
-   Rough due: 8/04 (day 5)
 
+### LUCIA & DIMITRIS
 
-LUCIA & DIMITRIS
 1. Sentiment classification
    Rough due: 8/02 (day 3)
                    
 2. Music genre classification
+   Rough due: 8/04 (day 5) if at all, maybe never
+
+
+### UP FOR GRABS
+
+1. Profile class -> database w/ name, face, to-dos, likes/dislikes
    Rough due: 8/04 (day 5) if at all, maybe never
 
 
