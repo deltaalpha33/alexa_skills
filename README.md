@@ -1,4 +1,4 @@
-INSTALLATION REQUIREMENTS
+# INSTALLATION REQUIREMENTS
 
 feedparser: pip install feedparser
 
@@ -7,9 +7,9 @@ justext: pip install justext
 nltk: run nltk.download() in python environment
 
 
-#WEEK 4 PRIORITY MAP
+# WEEK 4 PRIORITY MAP
 
-VICTOR
+### VICTOR
 
 1. Rock paper scissors
    Rough due: 8/01 (day 2)
@@ -18,7 +18,7 @@ VICTOR
    Rough due: 8/04 (day 5)
 
 
-DASH
+### DASH
 
 1. Face rec to Alexa skill
    Rough due: 8/01 (day 2)
@@ -27,7 +27,7 @@ DASH
    Rough due: 8/04 (day 5)
 
 
-LUCIA & DIMITRIS
+### LUCIA & DIMITRIS
 1. Sentiment classification
    Rough due: 8/02 (day 3)
                    

@@ -6,7 +6,12 @@ import string
 import time
 from operator import itemgetter
 
-class MySearchEngine():
+import os
+current_dir = os.path.dirname(os.path.realpath(__file__))
+nltk.data.path.append(current_dir + os.sep + "nltk_data") #add local ntlk data to path
+
+
+class SearchEngine():
     def __init__(self):
         
         self.raw_text = {} # Dict[str, str]: maps document id to original/raw text
@@ -53,7 +58,7 @@ class MySearchEngine():
         return [y.lower() for y in nltk.word_tokenize(text) if self.strindex(string.punctuation,y) == -1] 
 
 
-    def add(self, id, text):
+    def add(self, document_dictionary):
         """ Adds document to index.
         
             Parameters
@@ -63,25 +68,27 @@ class MySearchEngine():
             text: str
                 The text of the document to be indexed.
         """
-        # check if document is already in index, and raise error if so
-        if id in self.raw_text:
-            raise LookupError("Document already in index - no need to add it!")
+        for id, text in document_dictionary.items():
+            # check if document is already in index, skip it
+            if id in self.raw_text:
+                #raise LookupError("Document already in index - no need to add it!")
+                continue
 
-        self.raw_text[id] = text
-        
-        tokens = self.tokenize(text)
-        
-        c = Counter(tokens)
-        
-        self.term_vectors[id] = c
-        
-        for vv in c:
-            self.inverted_index[vv].update([id])
-        
-        storage = set()
-        storage.update( c.elements() )
-        for varK in storage:
-            self.doc_freq[varK] += 1
+            self.raw_text[id] = text
+            
+            tokens = self.tokenize(text)
+            
+            c = Counter(tokens)
+            
+            self.term_vectors[id] = c
+            
+            for vv in c:
+                self.inverted_index[vv].update([id])
+            
+            storage = set()
+            storage.update( c.elements() )
+            for varK in storage:
+                self.doc_freq[varK] += 1
         
     def remove(self, id):
         """ Removes document from index.
