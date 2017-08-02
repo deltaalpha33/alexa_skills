@@ -36,3 +36,20 @@ def no_intent():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+#alexa config 
+
+# {
+#   "intents": [
+#     {
+#       "intent": "YesIntent"
+#     },
+#     {
+#       "intent": "NoIntent"
+#     }
+#   ]
+# }
+
+# YesIntent yes
+# NoIntent No
