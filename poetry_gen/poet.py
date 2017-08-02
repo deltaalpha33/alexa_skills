@@ -6,9 +6,15 @@ import numpy as np
 from collections import Counter
 from collections import defaultdict
 
+import os
+import io
+import glob
+
+import re, string
+
 class Poet:
 
-    def __init__(self, path):
+    def __init__(self):
 
         """
         Decode text file from bytes to string, then make lowercase for processing.
@@ -20,15 +26,8 @@ class Poet:
             File path to text, ex: poems.txt
         
         """
-
-        path_to_poems = path
-
-         with open(path_to_poems, "rb") as f:
-            self.poems = f.read().decode().lower()
-
-        self.counter = Counter(self.poems)
-        
-        pass
+        self.documents = list()
+        self.bag_of_words = list()
 
     def load_text(self, path):
 
@@ -42,12 +41,41 @@ class Poet:
         
         """
 
-        path_to_poems = path
+        file_paths = glob.glob(path +'*.txt')
+        punc_regex = re.compile('([{}])*'.format(re.escape(string.punctuation.replace("'", '').replace("\\", ''))))
+        alpha_split = re.compile("([A-Z])/([^A-Z])*")
+        print(alpha_split.split("abc?"))
+        for file_path in file_paths:
+            with io.open(file_path,'r',encoding='utf8') as f:
+                unicode_data = f.read()
 
-        with open(path_to_poems, "rb") as f:
-            self.poems = f.read().decode().lower()
+                document = str(unicode_data.encode('ascii', 'ignore')).replace("\\", '').replace(" '", "'")
+                document = str(unicode_data.encode('ascii', 'ignore')).replace("\\", '')
 
-        return None
+                token_list = document.split()
+                
+                token_list =    [split_punc for split_punc in (punc_regex.split(split_punc_item)
+                                 for split_punc_item in (item for small_list in (alpha_split.split(word)
+
+                                 for word in token_list) for item in small_list if item != '' and item != " ") ) ]
+
+                # token_list = list((item for small_list in (alpha_split.split(word)
+
+                #                  for word in document.split()) for item in small_list if item != '' and item != " ") )
+                print(token_list)
+                break
+
+                
+
+    def create_bag_of_words(self):
+        """
+
+
+        """
+
+        word_counter = Counter()
+
+        self.bag_of_words = set(word for document in self.documents for word in document)  #word_tokenize(document)
     
     def unzip(self, pairs):
         """
@@ -205,6 +233,15 @@ class Poet:
             history = history[1:]
 
         return "".join(text) # list to str
+
+alexa_poet = Poet()
+
+alexa_poet.load_text("poetry_dataset/")
+
+alexa_poet.create_bag_of_words()
+print(alexa_poet.bag_of_words)
+
+
             
                           
 
