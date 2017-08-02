@@ -1,0 +1,23 @@
+Begin:
+	Recognized:[Done]
+		Leave Note:[]
+			Name|[]
+		Read Notes:[]
+			pass|[]
+	More than 1:[Done]
+		pass|[Done]
+	Not Recognized:[Done]
+		Add to DB:[]
+			Name|[]
+		Not:[]
+			pass|[]
+
+
+Intents:
+
+
+
+LeaveNote
+ReadNote
+Add
+End
