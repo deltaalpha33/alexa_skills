@@ -1,22 +1,21 @@
-Begin:
+Start:[Done]
 	Recognized:[Done]
-		Leave Note:[]
-			Name|[]
-		Read Notes:[]
+		Leave Note:[Done]
+			pass|[]
+		Read Notes:[Done]
 			pass|[]
 	More than 1:[Done]
 		pass|[Done]
 	Not Recognized:[Done]
-		Add to DB:[]
-			Name|[]
-		Not:[]
+		Add to DB:[Done]
+			pass|[]
+		Not:[Done]
 			pass|[]
 
 
 Intents:
 
-
-
+Start
 LeaveNote
 ReadNote
 Add

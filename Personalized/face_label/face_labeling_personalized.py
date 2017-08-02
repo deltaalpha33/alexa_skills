@@ -48,6 +48,7 @@ def get_desc(img):
     shape=shape_predictor(img,k[0])
     descv = face_rec_model.compute_face_descriptor(img,shape)
     return np.array(descv)
+
 def eucd(vect1,vect2):
     """
     Euclidian distance of two vectors.
