@@ -42,9 +42,12 @@ class Poet:
         """
 
         file_paths = glob.glob(path +'*.txt')
-        punc_regex = re.compile('([{}])*'.format(re.escape(string.punctuation.replace("'", '').replace("\\", ''))))
-        alpha_split = re.compile("([A-Z])/([^A-Z])*")
-        print(alpha_split.split("abc?"))
+        punc_regex_string = [ "(" + re.escape(escape_char) + ")" + "|" for escape_char in string.punctuation.replace("'", '').replace("\\", '')]
+        #punc_regex = re.compile('([{}])*'.format(re.escape(string.punctuation.replace("'", '').replace("\\", ''))))
+        punc_regex = re.compile(''.join(punc_regex_string))
+        alpha_split = re.compile("([A-Z][^A-Z]*)*")
+        number_regex = re.compile('[[0-9]+]|[IVXLCM]+')
+        #print(re.sub(number_regex, "", ("abc IV")))
         for file_path in file_paths:
             with io.open(file_path,'r',encoding='utf8') as f:
                 unicode_data = f.read()
@@ -54,15 +57,19 @@ class Poet:
 
                 token_list = document.split()
                 
-                token_list =    [split_punc for split_punc in (punc_regex.split(split_punc_item)
+                token_list =    [re.sub(number_regex, "", token) for split_punc in (punc_regex.split(split_punc_item)
                                  for split_punc_item in (item for small_list in (alpha_split.split(word)
 
-                                 for word in token_list) for item in small_list if item != '' and item != " ") ) ]
+                                 for word in token_list) for item in small_list if item != '' and item != " ") ) for token in split_punc if token != None and token != '']
 
                 # token_list = list((item for small_list in (alpha_split.split(word)
 
                 #                  for word in document.split()) for item in small_list if item != '' and item != " ") )
+                
                 print(token_list)
+
+                with open("/home/delta/mit-course/git/alexa_skills/sanitized_poetry_dataset/test.txt", 'w') as f:
+                    f.write(' '.join(token_list))
                 break
 
                 
