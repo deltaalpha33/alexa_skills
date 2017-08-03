@@ -1,16 +1,16 @@
 Start:[Done]
 	Recognized:[Done]
 		Leave Note:[Done]
-			pass|[]
+			pass|[Done]
 		Read Notes:[Done]
-			pass|[]
+			pass|[Done]
 	More than 1:[Done]
 		pass|[Done]
 	Not Recognized:[Done]
 		Add to DB:[Done]
-			pass|[]
+			pass|[Done]
 		Not:[Done]
-			pass|[]
+			pass|[Done]
 
 
 Intents:
