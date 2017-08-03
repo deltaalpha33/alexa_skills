@@ -48,7 +48,7 @@ class Poet:
         alpha_split = re.compile("([A-Z][^A-Z]*)*")
         number_regex = re.compile('[[0-9]+]|[IVXLCM]+')
         #print(re.sub(number_regex, "", ("abc IV")))
-        for file_path in file_paths:
+        for file_num, file_path in enumerate(file_paths):
             with io.open(file_path,'r',encoding='utf8') as f:
                 unicode_data = f.read()
 
@@ -66,11 +66,10 @@ class Poet:
 
                 #                  for word in document.split()) for item in small_list if item != '' and item != " ") )
                 
-                print(token_list)
+                #print(token_list)
 
-                with open("/home/delta/mit-course/git/alexa_skills/sanitized_poetry_dataset/test.txt", 'w') as f:
+                with open("/home/delta/mit-course/git/alexa_skills/sanitized_poetry_dataset/text" + str(file_num) + ".txt", 'w') as f:
                     f.write(' '.join(token_list))
-                break
 
                 
 
