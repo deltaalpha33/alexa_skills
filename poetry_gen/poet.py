@@ -11,6 +11,7 @@ import io
 import glob
 
 import re, string
+import pickle
 
 class Poet:
 
@@ -27,7 +28,8 @@ class Poet:
         
         """
         self.documents = list()
-        self.bag_of_words = list()
+        self.bag_of_words = Counter()
+        self.sanitized_poetry_dataset_dir = "/home/delta/mit-course/git/alexa_skills/sanitized_poetry_dataset/"
 
     def load_text(self, path):
 
@@ -68,7 +70,7 @@ class Poet:
                 
                 #print(token_list)
 
-                with open("/home/delta/mit-course/git/alexa_skills/sanitized_poetry_dataset/text" + str(file_num) + ".txt", 'w') as f:
+                with open(self.sanitized_poetry_dataset_dir + str(file_num) + ".txt", 'w') as f:
                     f.write(' '.join(token_list))
 
                 
@@ -78,10 +80,25 @@ class Poet:
 
 
         """
+        punc_regex = re.compile('[{}]'.format(re.escape(string.punctuation)))
 
+        file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
         word_counter = Counter()
+        for file_path in file_paths:
 
-        self.bag_of_words = set(word for document in self.documents for word in document)  #word_tokenize(document)
+            with open(file_path, 'r') as f:
+                document = f.read()
+                document = punc_regex.sub('', document)
+                document_words = document.split()
+                word_counter.update(document_words)
+
+
+        with open(self.sanitized_poetry_dataset_dir + "bag_of_words.pkl", 'wb') as f:
+            pickle.dump(word_counter, f, pickle.HIGHEST_PROTOCOL)
+
+    def load_bag_of_words(self):
+        with open(self.sanitized_poetry_dataset_dir + "bag_of_words.pkl", 'rb') as f:
+            self.bag_of_words = pickle.load(f)
     
     def unzip(self, pairs):
         """
@@ -242,10 +259,11 @@ class Poet:
 
 alexa_poet = Poet()
 
-alexa_poet.load_text("poetry_dataset/")
+#alexa_poet.load_text("poetry_dataset/")
 
 alexa_poet.create_bag_of_words()
-print(alexa_poet.bag_of_words)
+alexa_poet.load_bag_of_words()
+print(alexa_poet.bag_of_words.most_common(10))
 
 
             
