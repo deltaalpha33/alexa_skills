@@ -31,6 +31,12 @@ class Poet:
         self.bag_of_words = Counter()
         self.sanitized_poetry_dataset_dir = "/home/delta/mit-course/git/alexa_skills/sanitized_poetry_dataset/"
 
+        # initialize the model
+        self.model = defaultdict(Counter)
+        self.lm = defaultdict(Counter)
+
+        self.n = 5
+
     def load_text(self, path):
 
         """
@@ -99,6 +105,28 @@ class Poet:
     def load_bag_of_words(self):
         with open(self.sanitized_poetry_dataset_dir + "bag_of_words.pkl", 'rb') as f:
             self.bag_of_words = pickle.load(f)
+
+
+    def learn_documents(self):
+        """
+
+
+        """
+        punc_regex = re.compile('[{}]'.format(re.escape(string.punctuation)))
+        space_regex = re.compile(' +')
+
+        file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
+        document_counts = list()
+        for file_path in file_paths:
+
+            with open(file_path, 'r') as f:
+                document = f.read()
+                document = punc_regex.sub('', document)
+                document = space_regex.sub(' ', document) #needs ' ' <----- space so it replaces instead of deletes
+
+                char_counter = self.train_lm(document[1:])
+                document_counts.append(char_counter)
+        self.save_model()
     
     def unzip(self, pairs):
         """
@@ -138,23 +166,20 @@ class Poet:
         list tuples
 
         """
-
-        total = sum(cnt for _, cnt in counts)
-        frequencies = [ (char, cnt/total) for char, cnt in counts ]
+        total = sum(cnt for cnt in counts.values())
+        frequencies = [ (char, cnt/total) for char, cnt in counts.items()]
 
         # sanity check: confirm that the frequencies total to 1
 
-        print(sum(freq for _, freq in frequencies))
+        #print(sum(freq for _, freq in frequencies))
 
         return frequencies
 
-    def tokenize(self):
+    def nomalize_model(self):
+        for cnt in self.model:
+            self.lm[cnt] = self.normalize(self.model[cnt])
 
-        tokens = self.poems.split() # splits text by spaces
-
-        return tokens
-
-    def train_lm(text, n):
+    def train_lm(self, text):
         """
         Train character-based n-gram language model.
 
@@ -173,27 +198,33 @@ class Poet:
 
         """
 
-        # initialize the model
-        model = defaultdict(Counter)
+
 
         # create the initial padded history
-        history = "~"*(n-1)
+        history = "~"*(self.n-1)
 
         for i in range(len(text)):
             next_char = text[i] # get the next character in the text
-            model[history][next_char] += 1 # given the history, update the counter
+            self.model[history][next_char] += 1 # given the history, update the counter
 
-            history = str( history[ - (n-2):] + next_char ) # revise the history
+            history = str( history[ - (self.n-2):] + next_char ) # revise the history
 
         # use the normalize function to convert the history -> char-count dict to
         # a history -> char-frequency dict
 
-        for x in model:
-            model[x] = normalize(model[x])
+        # for x in model:
+        #     model[x] = normalize(model[x])
 
-        return model
+    def save_model(self):
+        with open(self.sanitized_poetry_dataset_dir + "model.pkl", 'wb') as f:
+            pickle.dump(self.model, f, pickle.HIGHEST_PROTOCOL)
 
-    def generate_letter(lm, history):
+    def load_model(self):
+        with open(self.sanitized_poetry_dataset_dir + "model.pkl", 'rb') as f:
+            self.model = pickle.load(f)
+
+
+    def generate_letter(self, history):
         """
         Randomly picks a letter according to the probability distribution associated with the given history.
 
@@ -213,16 +244,16 @@ class Poet:
 
         """
         
-        if not history in lm:
+        if not history in self.lm:
             return "~"
 
-        letters, probabilities = unzip(lm[history])
+        letters, probabilities = self.unzip(self.lm[history])
 
         i = np.random.choice(letters, p=probabilities)
 
         return i
 
-    def generate_text(lm, n, nletters=100):
+    def generate_text(self, nletters=1000):
         """
         Randomly generates nletters of text with n-gram language model lm.
 
@@ -244,27 +275,29 @@ class Poet:
 
         """
         # pad the history
-        history = "~" * (n-1)
+        history = "~" * (self.n-1)
 
-        text = []
+        text = history
 
         for i in range(nletters):
             
-            c = generate_letter(lm, history)
-            text.append(c)
+            text += self.generate_letter(history)
 
-            history = history[1:]
+            history = str(text[-self.n + 1:])
 
         return "".join(text) # list to str
 
 alexa_poet = Poet()
 
 #alexa_poet.load_text("poetry_dataset/")
-
-alexa_poet.create_bag_of_words()
-alexa_poet.load_bag_of_words()
-print(alexa_poet.bag_of_words.most_common(10))
-
+#alexa_poet.learn_documents()
+#alexa_poet.create_bag_of_words()
+#alexa_poet.load_bag_of_words()
+alexa_poet.load_model()
+alexa_poet.nomalize_model()
+print(alexa_poet.lm["~~"])
+#print(alexa_poet.generate_letter("~~"))
+print(alexa_poet.generate_text())
 
             
                           
