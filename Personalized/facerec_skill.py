@@ -7,10 +7,16 @@ import json
 import numpy as np
 from face_label import face_labeling_personalized as fl
 from audio_input import audio
+from note_code import notepy
+
+
 
 print(type(-1))
-a = audio.Audio()
+
+note = notepy.Note("notes",audio)
+note.loadDBnp()
 DB = fl.loadDBnp("vectors")
+
 
 
 app = Flask(__name__)
@@ -40,6 +46,7 @@ def start_skill():
     global name
     global state
     global nameGoal
+    state = 0
     name = fl.findMatch(fl.get_desc(fl.take_picture()),DB)
     if name == fl.tooManyString:
         return statement("Make sure you are visible and no one else is.")
@@ -57,10 +64,12 @@ def leave_note(forName):
     global state
     global nameGoal
     if state  == 2:
-        state  = 3
+        #state  = 3
         nameGoal = forName
+        note.add_note(30,nameGoal)
+        state = 2
         return statement(forName + " what?")
-    return statement("That didn't make sense.")
+    return statement("That didn't make sense.[leave]")
 
 @ask.intent("ReadNoteIntent")
 def read_note():
@@ -68,11 +77,13 @@ def read_note():
     global state
     global nameGoal
     if state  == 2:
-        state  = 4
-        readNotes(name)
+        #state  = 4
+        state = 2
+        print("Not a failure")
+        note.read_notes(name)
         return statement("")
-    return statement("That didn't make any sense.")
-
+    return statement("That didn't make any sense.[read]")
+"""
 @ask.intent("AddFaceIntent")
 def add_face(forName):
     global name
@@ -81,8 +92,8 @@ def add_face(forName):
     if state == 1:
         addFaceDB(forName,)
         return statement("You are now in my database.")
-    return statement("That didn't make any sense.")
-
+    return statement("That didn't make any sense.[]")
+"""
 
 @ask.intent("AddFaceIntent")
 def add_face(forName):
@@ -90,9 +101,10 @@ def add_face(forName):
     global state
     global nameGoal
     if state == 1:
-        addFaceDB(forName,)
-        return statement("You are now in my database.")
-    return statement("That didn't make any sense.")
+        state = 2
+        result = fl.addImgToDB(DB,fl.take_picture(),forName,dirt)
+        return statement(result)
+    return statement("That didn't make any sense.[add]")
 
 @ask.intent("CancelIntent")
 def cancel():
@@ -100,8 +112,9 @@ def cancel():
     global state
     global nameGoal
     if state == 1:
+        state = 2
         return statement("Smell ya later.")
-    return statement("That didn't make any sense.")
+    return statement("That didn't make any sense.[cancel]")
 
 
 @ask.session_ended
@@ -111,7 +124,7 @@ def session_ended():
     global nameGoal
     print ("success")
     if state  == 3:
-        recordNotes(name,nameGoal)
+        #note.add_note(30,nameGoal)
         print("suc my cess")
     return "{}",200
 

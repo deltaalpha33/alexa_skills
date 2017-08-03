@@ -187,13 +187,13 @@ def saveDBnp(dirt,db,splt='\\'):
         if name != prevname:
             prevname = name
             it = 0
-        direc = dirt + splt + name
+        direc = os.path.join(dirt , name)
 
         if not os.path.exists(direc):
             os.makedirs(direc)
             
         
-        direc = direc + splt +"vct" + str(it)
+        direc = os.path.join(direc , "vct" + str(it))
             
         np.savez(direc,ray=ray)
         it = it + 1
@@ -211,6 +211,7 @@ def loadDBnp(dirt,splt = '\\'):
     """
     import skimage.io as io
     import os
+    splt = os.sep
     lstOfDirs = [x[0] for x in os.walk(dirt)][1:]
     
     db = []
@@ -235,13 +236,14 @@ def loadDBnp(dirt,splt = '\\'):
     
     return db
 
-def addImgToDB(db,img,label):
+def addImgToDB(db,img,label,dirt):
     """
     Adds the face vector in img with label 'label' to db
     """
     desc = get_desc(img)
     if np.isscalar( desc ) == -1:
         print("error")
-        return "early break"
+        return "Failed to identify a singular face."
     db.append( (desc,label) )
-    return "success"
+    saveDBnp(dirt,db)
+    return "Successfuly added to database."
