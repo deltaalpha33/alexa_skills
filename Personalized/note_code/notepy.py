@@ -78,10 +78,10 @@ class Note:
         for i,val in enumerate(self.db):
             note, nameDB = val[0],val[1]
             if nameDB == name:
+                print("in")
                 self.a.play_audio(note)
                 killMe.append(i)
         self.db = [i for j, i in enumerate(self.db) if j not in killMe]
-        self.saveDBnp()
         #os.rmdir(os.path.join(self.path,name))
         shutil.rmtree(os.path.join(self.path,name), ignore_errors=True)
 

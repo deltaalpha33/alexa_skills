@@ -66,7 +66,11 @@ def leave_note(forName):
     if state  == 2:
         #state  = 3
         nameGoal = forName
-        note.add_note(30,nameGoal)
+        print("starting...")
+        print(note.db)
+        note.add_note(10,nameGoal)
+        print(note.db)
+        print("ended.")
         state = 2
         return statement(forName + " what?")
     return statement("That didn't make sense.[leave]")
@@ -79,8 +83,12 @@ def read_note():
     if state  == 2:
         #state  = 4
         state = 2
-        print("Not a failure")
-        note.read_notes(name)
+        print("Reading...")
+        print(note.db)
+        note.loadDBnp()
+        note.read_notes(name.lower())
+        print(note.db)
+        print("ended.")
         return statement("")
     return statement("That didn't make any sense.[read]")
 """
@@ -102,7 +110,7 @@ def add_face(forName):
     global nameGoal
     if state == 1:
         state = 2
-        result = fl.addImgToDB(DB,fl.take_picture(),forName,dirt)
+        result = fl.addImgToDB(DB,fl.take_picture(),forName,"vectors")
         return statement(result)
     return statement("That didn't make any sense.[add]")
 
