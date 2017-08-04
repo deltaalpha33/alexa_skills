@@ -1,5 +1,5 @@
-import nltk
-from nltk import word_tokenize
+#import nltk
+#from nltk import word_tokenize
 
 import numpy as np
 
@@ -12,6 +12,182 @@ import glob
 
 import re, string
 import pickle
+
+from keras.models import Sequential
+from keras.layers import LSTM
+
+
+
+from sklearn.decomposition import TruncatedSVD, randomized_svd
+from gensim.models.keyedvectors import KeyedVectors
+from collections import defaultdict, Counter
+import codecs
+from nltk.tokenize import word_tokenize
+import time
+
+from numba import njit
+
+
+def generate_sorted_words(tokens):
+    """ Create list of unique words sorted by count in descending order
+        
+        Parameters
+        ----------
+        tokens: list(str)
+            A list of tokens (words), e.g., ["the", "cat", "in", "the", "in", "the"]
+        
+        Returns
+        -------
+        list(str)
+            A list of unique tokens sorted in descending order, e.g., ["the", "in", cat"]
+        
+    """
+    # SOLUTION
+    counter = Counter(tokens)
+    words = [word for word, count in counter.most_common()]
+    return words
+
+def generate_word2code(sorted_words):
+    """ Create dict that maps a word to its position in the sorted list of words
+    
+        Parameters
+        ---------
+        sorted_words: list(str)
+            A list of unique words, e.g., ["b", "c", "a"]
+        
+        Returns
+        -------
+        dict[str, int]
+            A dictionary that maps a word to an integer code, e.g., {"b": 0, "c": 1, "a": 2}
+        
+    """
+    # SOLUTION
+    word2code = {w : i for i, w in enumerate(sorted_words)}
+    return word2code
+
+def convert_tokens_to_codes(tokens, word2code):
+    """ Convert tokens to codes.
+    
+        Parameters
+        ---------
+        tokens: list(str)
+            A list of words, e.g., ["b", "c", "a"]
+        word2code: dict[str, int]
+            A dictionary mapping words to integer codes, e.g., {"b": 0, "c": 1, "a": 2}
+        
+        Returns
+        -------
+        list(int)
+            A list of codes corresponding to the input words, e.g., [0, 1, 2].
+    """
+    # SOLUTION
+    return [word2code[token] for token in tokens]
+
+
+def reduce(X, n_components, power=0.0):
+    U, Sigma, VT = randomized_svd(X, n_components=n_components)
+    # note: TruncatedSVD always multiplies U by Sigma, but can tune results by just using U or raising Sigma to a power
+    return U * (Sigma**power)
+
+@njit
+def generate_word_by_context(codes, max_vocab_words=1000, max_context_words=1000, context_size=2, weight_by_distance=False):
+    """ Create matrix of vocab word by context word (possibly weighted) co-occurrence counts.
+    
+        Parameters
+        ----------
+        codes: list(int)
+            A sequence of word codes.
+        max_vocab_words: int
+            The max number of words to include in vocabulary (will correspond to rows in matrix).
+            This is equivalent to the max word code that will be considered/processed as the center word in a window.
+        max_context_words: int
+            The max number of words to consider as possible context words (will correspond to columns in matrix).
+            This is equivalent to the max word code that will be considered/processed when scanning over contexts.
+        context_size: int
+            The number of words to consider on both sides (i.e., to the left and to the right) of the center word in a window.
+        weight_by_distance: bool
+            Whether or not the contribution of seeing a context word near a center word should be 
+            (down-)weighted by their distance:
+            
+                False --> contribution is 1.0
+                True  --> contribution is 1.0 / (distance between center word position and context word position)
+            
+            For example, suppose ["i", "am", "scared", "of", "dogs"] has codes [45, 10, 222, 25, 88]. 
+            
+            With weighting False, 
+                X[222, 25], X[222, 10], X[222, 25], and X[222, 88] all get incremented by 1.
+            
+            With weighting True, 
+                X[222, 25] += 1.0/2 
+                X[222, 10] += 1.0/1 
+                X[222, 25] += 1.0/1
+                X[222, 88] += 1.0/2
+        
+        Returns
+        -------
+        (max_vocab_words x max_context_words) ndarray
+            A matrix where rows are vocab words, columns are context words, and values are
+            (possibly weighted) co-occurrence counts.
+    """
+    
+    """
+    pseudo-code:
+    
+    slide window along sequence
+    if code of center word is < max_vocab_words
+        for each word in context (on left and right sides)
+            if code of context word < max_context_words
+                add 1.0 to matrix element in row of center word and column of context word
+                    or
+                add 1.0 / (distance from center to context)
+    
+    example: assume context_size is 2 (i.e., 2 words to left and 2 words to right)
+    
+      "a" "a" "b" "c" "c" "c" "c" "a" "b" "c"   # sequence of words
+       1   1   2   0   0   0   0   1   2   0    # sequence of word codes
+       0   1   2   3   4   5   6   7   8   9    # position in sequence
+      [        ^        ]                       # first window: centered on position 2; center word has code 2
+          [        ^        ]                   # second window: centered on position 3; center word has code 0
+                       ...                 
+                          [        ^        ]   # last window: centered on position 7; center word has code 1
+    """
+    
+    # initialize matrix (with dtype="float32" to reduce required memory)
+    
+    # SOLUTION
+    X = np.zeros((max_vocab_words, max_context_words))
+
+    # slide window along sequence and count "center word code" / "context word code" co-occurrences
+    # Hint: let main loop index indicate the center of the window
+    
+    # SOLUTION
+    for i in range(context_size, len(codes) - context_size):
+#         if i % 100000 == 0:
+#             print("i = " + str(i) + ": " + str(1.0 * i / len(codes)) + "%")
+
+        center_code = codes[i]
+        if center_code < max_vocab_words:
+            # left side
+            for j in range(1, context_size + 1):
+                context_code = codes[i - j]
+                if context_code < max_context_words:
+                    value = 1.0
+                    if weight_by_distance:
+                        value = 1.0 / j
+                    X[center_code, context_code] += value
+            # right side
+            for j in range(1, context_size + 1):
+                context_code = codes[i + j]
+                if context_code < max_context_words:
+                    value = 1.0
+                    if weight_by_distance:
+                        value = 1.0 / j
+                    X[center_code, context_code] += value
+
+    return X
+
+
+
 
 class Poet:
 
@@ -36,6 +212,8 @@ class Poet:
         self.lm = defaultdict(Counter)
 
         self.n = 5
+
+        self.word_vectors = None
 
     def load_text(self, path):
 
@@ -107,7 +285,7 @@ class Poet:
             self.bag_of_words = pickle.load(f)
 
 
-    def learn_documents(self):
+    def learn_documents_ngram(self):
         """
 
 
@@ -126,7 +304,36 @@ class Poet:
 
                 char_counter = self.train_lm(document[1:])
                 document_counts.append(char_counter)
-        self.save_model()
+        self.save_model_ngram()
+
+    def save_model_ngram(self):
+        with open(self.sanitized_poetry_dataset_dir + "n_gram_model.pkl", 'wb') as f:
+            pickle.dump(self.model, f, pickle.HIGHEST_PROTOCOL)
+
+    def load_model_ngram(self):
+        with open(self.sanitized_poetry_dataset_dir + "n_gram_model.pkl", 'rb') as f:
+            self.model = pickle.load(f)
+
+    def learn_documents_word_gram(self):
+        file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
+        document_counts = list()
+        for file_path in file_paths:
+
+            with open(file_path, 'r') as f:
+                document = f.read()
+                document = document.split(" ")
+
+                word_counter = self.train_lm(document[1:])
+                document_counts.append(word_counter)
+        self.save_model_word_gram()
+
+    def save_model_word_gram(self):
+        with open(self.sanitized_poetry_dataset_dir + "word_gram_model.pkl", 'wb') as f:
+            pickle.dump(self.model, f, pickle.HIGHEST_PROTOCOL)
+
+    def load_model_word_gram(self):
+        with open(self.sanitized_poetry_dataset_dir + "word_gram_model.pkl", 'rb') as f:
+            self.model = pickle.load(f)
     
     def unzip(self, pairs):
         """
@@ -215,14 +422,57 @@ class Poet:
         # for x in model:
         #     model[x] = normalize(model[x])
 
-    def save_model(self):
-        with open(self.sanitized_poetry_dataset_dir + "model.pkl", 'wb') as f:
-            pickle.dump(self.model, f, pickle.HIGHEST_PROTOCOL)
+    def create_word_descriptors(self):
+        file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
+        tokens = list()
+        for file_path in file_paths:
+            with open(file_path, 'r') as f:
+                tokens.extend(f.read().split())
 
-    def load_model(self):
-        with open(self.sanitized_poetry_dataset_dir + "model.pkl", 'rb') as f:
-            self.model = pickle.load(f)
+        #word embeddings
+        sorted_words = generate_sorted_words(tokens)
+        word2code = generate_word2code(sorted_words)
+        codes = convert_tokens_to_codes(tokens, word2code)
+        # CAUTION: Think about how big of a matrix will be created...
 
+        # how many words to keep in vocabulary (will have one row per vocab word)
+        max_vocab_words = 50000
+
+        # how many words to treat as potential context words (will have one column per context word)
+        max_context_words = 5000
+
+
+        t0 = time.time()
+        X_wiki = generate_word_by_context(codes, 
+                                          max_vocab_words=max_vocab_words, 
+                                          max_context_words=max_context_words, 
+                                          context_size=4,
+                                          weight_by_distance=True)
+        t1 = time.time()
+        print("elapsed = " + str(t1 - t0) + "s")
+
+
+        # apply log to raw counts (which has been shown to improve results)
+        X_log = np.log10(1 + X_wiki, dtype="float32")
+
+        t0 = time.time()
+        d = 200
+        my_vectors = reduce(X_log, n_components=d)
+        t1 = time.time()
+        print("elapsed " + str(t1 - t0) + "s")
+
+        with open(self.sanitized_poetry_dataset_dir + "word_descriptors.pkl", 'wb') as f:
+            pickle.dump(my_vectors, f, pickle.HIGHEST_PROTOCOL)
+
+
+        # save in word2vec format (first line has vocab_size and dimension; other lines have word followed by embedding)
+        # with codecs.open("test_vector.txt", "w", "utf-8") as f:
+        #     f.write(str(len(sorted_words)) + " " + str(d) + "\n")
+    def load_word_descriptors(self):
+
+        # load back in
+        with open(self.sanitized_poetry_dataset_dir + "word_descriptors.pkl", 'rb') as f:
+            self.word_descriptors =  pickle.load(f)
 
     def generate_letter(self, history):
         """
@@ -288,16 +538,22 @@ class Poet:
         return "".join(text) # list to str
 
 alexa_poet = Poet()
-
+#alexa_poet.create_word_descriptors()
+alexa_poet.load_word_descriptors()
 #alexa_poet.load_text("poetry_dataset/")
-#alexa_poet.learn_documents()
-#alexa_poet.create_bag_of_words()
-#alexa_poet.load_bag_of_words()
-alexa_poet.load_model()
-alexa_poet.nomalize_model()
-print(alexa_poet.lm["~~"])
+#alexa_poet.learn_documents_ngram()
+#alexa_poet.load_model_ngram()
+#alexa_poet.nomalize_model()
+#print(alexa_poet.lm["~~"])
 #print(alexa_poet.generate_letter("~~"))
-print(alexa_poet.generate_text())
+#print(alexa_poet.generate_text())
+
+#recurrent.recurrent([0,0,0], [1,2,3])
+
+
+# as the first layer in a Sequential model
+# model = Sequential()
+# model.add(LSTM(32, input_shape=(10, 64)))
 
             
                           
