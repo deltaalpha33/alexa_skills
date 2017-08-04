@@ -15,6 +15,10 @@ import pickle
 
 #from keras.models import Sequential
 #from keras.layers import LSTM
+from keras.models import Sequential
+from keras.layers import Dense, Activation
+from keras.layers import LSTM
+from keras.optimizers import RMSprop
 
 
 
@@ -215,7 +219,7 @@ class Poet:
 
         self.word_descriptors = None
 
-    def load_text(self, path):
+    def sanitize_text(self, path):
 
         """
         Decode text file from bytes to string, then make lowercase for processing.
@@ -549,9 +553,32 @@ class Poet:
 
         return "".join(text) # list to str
 
+    def get_longest_string(self):
+        file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
+        longest_token_len = 0
+        for file_path in file_paths:
+            with open(file_path, 'r') as f:
+                doc = f.read().split()
+                local_max_token_size = len(max(doc, key=len))
+                if local_max_token_size > longest_token_len:
+                    longest_token_len = local_max_token_size
+
+                        
+        print("longest string is " + str(len(max(doc, key=len))))
+        return longest_token_len
+
+    def train_lstm(self):
+        phrase_size = 3
+        
+
+
+        
+
+
 
 alexa_poet = Poet()
-alexa_poet.create_word_descriptors()
+alexa_poet.load_bag_of_words()
+alexa_poet.train_lstm()
 #alexa_poet.load_word_descriptors()
 #print(alexa_poet.word_descriptors["is"])
 #alexa_poet.load_text("poetry_dataset/")

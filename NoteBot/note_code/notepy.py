@@ -4,13 +4,21 @@ import shutil
 
 class Note:
     def __init__(self,path,audio):
+        """
+
+        Parameters
+        ----------
+        path: file path to note
+        audio: the audio module
+        
+        """
         self.path = path
         self.a = audio.Audio()
         self.db = []
     def add_to_db(self,note,to):
         self.db.append([note,to])
     def saveDBnp(self):
-        """
+        """ 
         Saves a db to directory path
         """
         if len(self.db) == 0:
@@ -36,10 +44,14 @@ class Note:
     def loadDBnp(self):
         """
         Loads a db from directory path.
+
+
         the folder at path path must be formated like such:
-        Folders with names of the desired labels (ie: 'Daschel Cooper')
+        Folders with names of the desired labels (ie: 'daschel', 'victor')
         Within them .npz files storing arrays named 'ray'
-            (this naming and format is done automatically by saveDBnp)
+
+            (this naming and format is done automatically by saveDBnp,
+            so it doesn't matter unless you are tranfering files manually)
         """
         dirt = self.path
         lstOfDirs = [x[0] for x in os.walk(dirt)][1:]
@@ -66,8 +78,12 @@ class Note:
 
         self.db = db
     def add_note(self, time, name):
-        """
-        record + store a note of length time for name
+        """ record and store a note
+        Parameters
+        ----------
+        time: secconds of audio to read
+        name: who the note is for
+        
         """
         print("d5aefcace8face5e85ae8f5819234a")
         note = self.a.read_mic(time)

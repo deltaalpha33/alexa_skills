@@ -58,6 +58,3 @@ CancelIntent Stop
 StartIntent Start
 StartIntent Begin
 StartIntent Run
-
-	Names:
-Add any odd names to AMAZON.US_FIRST_NAME
