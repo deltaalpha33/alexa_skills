@@ -1,0 +1,63 @@
+	Intent Schema:
+{
+  "intents": [
+    {
+      "slots": [
+        {
+          "name": "forName",
+          "type": "AMAZON.US_FIRST_NAME"
+        }
+      ],
+      "intent": "LeaveNoteIntent"
+    },
+    {
+      "intent": "ReadNoteIntent"
+    },
+    {
+      "slots": [
+        {
+          "name": "forName",
+          "type": "AMAZON.US_FIRST_NAME"
+        }
+      ],
+      "intent": "AddFaceIntent"
+    },
+    {
+      "intent": "CancelIntent"
+    },
+    {
+      "intent": "StartIntent"
+    }
+  ]
+}
+
+
+
+	Sample Utterances:
+LeaveNoteIntent leave {forName} a note
+LeaveNoteIntent leave a note for {forName}
+LeaveNoteIntent write {forName} a note
+LeaveNoteIntent write a note for {forName}
+ReadNoteIntent read
+ReadNoteIntent play
+ReadNoteIntent show
+ReadNoteIntent read the notes
+ReadNoteIntent play the notes
+ReadNoteIntent show the notes
+ReadNoteIntent read notes
+ReadNoteIntent play notes
+ReadNoteIntent show notes
+AddFaceIntent Add me as {forName}
+AddFaceIntent My name is {forName}
+AddFaceIntent I am {forName}
+AddFaceIntent Call me {forName}
+CancelIntent No
+CancelIntent Cancel
+CancelIntent Nope
+CancelIntent Stop
+StartIntent Start
+StartIntent Begin
+StartIntent Run
+
+	Names:
+Add any odd names to AMAZON.US_FIRST_NAME

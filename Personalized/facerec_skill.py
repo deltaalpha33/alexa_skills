@@ -68,7 +68,7 @@ def leave_note(forName):
         nameGoal = forName
         print("starting...")
         print(note.db)
-        note.add_note(10,nameGoal)
+        note.add_note(30,nameGoal)
         print(note.db)
         print("ended.")
         state = 2
