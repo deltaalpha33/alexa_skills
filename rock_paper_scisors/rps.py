@@ -1,6 +1,6 @@
+#ALgorithm adapted from https://github.com/sdenton4/roshambot
 from flask import Flask
 from flask_ask import Ask, statement, question
-from roshambot import *
 import requests
 import time
 import unidecode
@@ -59,6 +59,9 @@ def compute_probabilities():
     return P
 
 def trump(m):
+    """
+    Helper function to output rock beats scissors, etc
+    """
     return beat[m]
 
 def get_move():
