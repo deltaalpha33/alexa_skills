@@ -131,7 +131,7 @@ DeniedaddIntent no thanks
 DeniedaddIntent nope
 RecommendationIntent recommend me a movie
 RecommendationIntent recommend a movie
-RecommendationIntent movie recomendations
+RecommendationIntent movie recommendations
 LikeIntent I like {movie}
 LikeIntent I liked {movie}
 LikeIntent like {movie}
