@@ -1,7 +1,5 @@
 import os
 import skimage.io as io
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 from camera import test_camera
 from camera import take_picture
 import numpy as np
