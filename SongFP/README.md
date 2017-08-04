@@ -39,7 +39,7 @@ ngrok http 5000
 
 First link your amazon developer account to your Alexa.
 
-Then go to the [Alexa Skills Kit](https://developer.amazon.com/edw/home.html#/skills) and create the Note Bot skill.
+Then go to the [Alexa Skills Kit](https://developer.amazon.com/edw/home.html#/skills) and create the Song FP skill.
 
 Under configuration enter the adress ngrok generated. It looks like `https://XXXXXXXX.ngrok.io`.
 
