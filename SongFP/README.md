@@ -1,6 +1,6 @@
-# Note Bot
+# Song FP
 
-An Alexa skill for leaving and recieving notes through facial recognition.
+An Alexa skill for identifying songs.
 
 `Note Bot` was created as a prototype for the CogWorks 2017 summer program, in the [Beaver Works Summer Institute at MIT](https://beaverworks.ll.mit.edu/CMS/bw/bwsi). It was developed by [Daschel Cooper](https://github.com/thedashdude).
 
@@ -17,11 +17,15 @@ Install all necessary programs and python packages:
 * `pyaudio`
 * `Flask`
 * `flask_ask`
+* `matplotlib`
+* `scipy`
 
-To set up the server run `facerec_skill.py`
+To load your songs to pickle files of fingerprints, open `song_labeling_notebook.ipynp` and follow the instructions to load mp3s. 
+
+To set up the server run `songfp_skill.py`
 
 ```shell
-python facerec_skill.py
+python songfp_skill.py
 ```
 
 Use ngrok to tunnel port 5000:
@@ -29,6 +33,7 @@ Use ngrok to tunnel port 5000:
 ```shell
 ngrok http 5000
 ```
+
 
 ## Alexa Setup
 
@@ -40,38 +45,11 @@ Under configuration enter the adress ngrok generated. It looks like `https://XXX
 
 Under interation model enter the intent schema and sample utterances found in `skill_setup.txt`.
 
-If you expect any uncommon names, you can add them to AMAZON.US_FIRST_NAME in the custom slot types area.
-
 ## Use
 
 The basic format for the skill is as follows:
-Commands:
 
-Begin by telling alexa to start note bot
+Tell Alexa:
 
-- "Alexa, ask note bot to start"
-- "Alexa, ask note bot to begin"
-
-If she recognizes you you can either read your notes,
-
-- "read my notes"
-- "play"
-- "read"
-
-or leave a note
-
-- "leave a note for victor"
-- "leave lucia a note"
-
-If she doesn't:
-
-Either say your name
-
-- "I'm daschel"
-- "my name is daschel"
-- "call me daschel"
-
-or cancel the program
-
-- "cancel"
-- "stop"
+- ""Alexa, ask song f.p. what song is this?"
+- ""Alexa, ask song f.p. to identify?"
