@@ -1,4 +1,4 @@
-# Race Rec
+# Face Rec
 
 An Alexa skill for naming people in front of a camera.
 
