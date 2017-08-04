@@ -1,0 +1,23 @@
+Commands:
+
+Begin by telling alexa to start note bot
+
+"Alexa, ask note bot to start"
+
+If she recognizes you you can either read your notes,
+
+"Read my notes", "play", "read"
+
+or leave a note
+
+"Leave a note for victor", "leave lucia a note"
+
+If she doesn't:
+
+Either say your name
+
+"I'm daschel", "my name is daschel", "call me daschel"
+
+or cancel the program
+
+"cancel","stop"
