@@ -21,7 +21,7 @@ Install all necessary programs and python packages:
 To set up the server run `facerec_skill.py`
 
 ```shell
-python facerec_skill.py
+python notebot.py
 ```
 
 Use ngrok to tunnel port 5000:
