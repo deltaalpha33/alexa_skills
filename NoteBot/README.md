@@ -45,7 +45,6 @@ If you expect any uncommon names, you can add them to AMAZON.US_FIRST_NAME in th
 ## Use
 
 The basic format for the skill is as follows:
-Commands:
 
 Begin by telling alexa to start note bot
 

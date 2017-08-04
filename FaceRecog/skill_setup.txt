@@ -1,0 +1,25 @@
+	Intent Schema:
+{
+  "intents": [
+    {
+      "intent": "YesIntent"
+    },
+    {
+      "intent": "NoIntent"
+    }
+  ]
+}
+
+
+	Sample Utterances:
+YesIntent yes
+YesIntent sure
+YesIntent yeah
+YesIntent Who are we?
+YesIntent who am I?
+YesIntent identify us
+YesIntent identify me
+YesIntent identify me
+NoIntent no
+NoIntent nah
+NoIntent stop

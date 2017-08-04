@@ -1,8 +1,8 @@
-# Song FP
+# Race Rec
 
-An Alexa skill for identifying songs.
+An Alexa skill for naming people in front of a camera.
 
-`Song FP` was created as a prototype for the CogWorks 2017 summer program, in the [Beaver Works Summer Institute at MIT](https://beaverworks.ll.mit.edu/CMS/bw/bwsi). It was developed by [Daschel Cooper](https://github.com/thedashdude).
+`Face Rec` was created as a prototype for the CogWorks 2017 summer program, in the [Beaver Works Summer Institute at MIT](https://beaverworks.ll.mit.edu/CMS/bw/bwsi). It was developed by [Daschel Cooper](https://github.com/thedashdude).
 
 ## Running Instructions
 
@@ -13,19 +13,16 @@ Install all necessary programs and python packages:
 ##### Packages:
 * `numpy`
 * `dlib_models`
-* `librosa`
-* `pyaudio`
+* `matplotlib`
 * `Flask`
 * `flask_ask`
-* `matplotlib`
-* `scipy`
 
-To load your songs to pickle files of fingerprints, open `song_labeling_notebook.ipynp` and follow the instructions to load mp3s. 
+To set up your own database of face descriptors, run `Face-Recognition.ipynb` and follow the instructions.
 
-To set up the server run `songfp_skill.py`
+To set up the server run `facerec_skill.py`
 
 ```shell
-python songfp_skill.py
+python facerec_skill.py
 ```
 
 Use ngrok to tunnel port 5000:
@@ -33,7 +30,6 @@ Use ngrok to tunnel port 5000:
 ```shell
 ngrok http 5000
 ```
-
 
 ## Alexa Setup
 
@@ -49,7 +45,4 @@ Under interation model enter the intent schema and sample utterances found in `s
 
 The basic format for the skill is as follows:
 
-Tell Alexa:
-
-- ""Alexa, ask song f.p. what song is this?"
-- ""Alexa, ask song f.p. to identify?"
+- "Alexa, ask face rec who we are."
