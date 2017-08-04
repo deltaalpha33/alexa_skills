@@ -18,6 +18,8 @@ class AppServer():
         self.alexa_modules = list()
         self.module_id_file_name = "alexa.skill"
 
+        self.ask_objects = list()
+
         for entry in os.scandir('.'):
             if entry.is_dir():
                 for test_file in os.scandir(entry.path):
@@ -40,7 +42,7 @@ class AppServer():
 
 
             self.app.register_blueprint(listen_url)
-            Ask(blueprint =  listen_url)
+            self.ask_objects.append(Ask(blueprint =  listen_url))
 
 
 testTree = AppServer()
