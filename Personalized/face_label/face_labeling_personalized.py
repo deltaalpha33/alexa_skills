@@ -15,31 +15,31 @@ shape_predictor = models["shape predict"]
 tooManyString = "Too many faces"
 noMatchString = "I don't know"
 
+
+#this is a terrible hack
 def numsfromrect(k):
-    """
-    Given a rectangle k will return x1,y1,x2,y2 of k
+    """ Given a rectangle k will return x1,y1,x2,y2 of k
+
+    Parameters
+    ----------
+    k: rectangle to get data from
+    
+    Returns
+    -------
+    list [x1,y1,x2,y2]
     """
     return list(map(int,str(k).replace('(','').replace('[','').replace(')','').replace(']','').replace(',','').split(' ')))
 
-def box_faces(img):
-    """
-    Draws boxes around all faces in a pic.
-    """
-    k=face_detect(img)
-
-    fig,ax = plt.subplots()
-    ax.imshow(img)
-
-    for i in range(len(k)):
-        lst = numsfromrect(k[i])
-        ax.add_patch(patches.Rectangle( (lst[0],lst[1]), lst[2]-lst[0], lst[3]-lst[1], fill=False))
-        
 def get_desc(img):
     """
     Get a single face description from a pic.
     Returns -1 if there isn't exactly one face.
     
     Used for loading images and labels to avoid bad data.
+
+    Parameters
+    ----------
+    img: image to get face from
     """
     k=face_detect(img)
     if len(k)!= 1:
@@ -50,14 +50,30 @@ def get_desc(img):
     return np.array(descv)
 
 def eucd(vect1,vect2):
-    """
-    Euclidian distance of two vectors.
+    """ Euclidian distance of two vectors.
+
+    Parameters
+    ----------
+    vect1: first vector
+    vect2: second vector
+    
+    Returns
+    -------
+    the distance between them
     """
     return np.sqrt(((vect1-vect2)**2).sum())
 
 def descriptions(img):
     """
     Given an image will return the list of descriptions of faces in it.
+
+    Parameters
+    ----------
+    img: the image to get all descriptions from
+    
+    Returns
+    -------
+    list of face descriptors
     """
     faces=face_detect(img)
     lst = []
@@ -76,9 +92,10 @@ def loadDBimgs(dirt,splt='\\'):
         
     splt = \ in windows
          = / in mac
+    splt is currently not used, but if errors are encountered it can be useful
     """
     lstOfDirs = [x[0] for x in os.walk(dirt)][1:]
-    
+    splt = os.sep
     db = []
     
     for rootDir in lstOfDirs:
@@ -101,6 +118,18 @@ def loadDBimgs(dirt,splt='\\'):
     return db
 
 def findMatch(d, db,conf=0.6):
+    """ Match a face descriptor with name in a database
+
+    Parameters
+    ----------
+    d: face vector to match
+    db: database of face vectors
+    conf: the distance d must be before it is considered a match
+    
+    Returns
+    -------
+    the name or a default string for too many matches
+    """
     if type(d) == int and d == -1:
         return tooManyString
     dists = []
@@ -114,6 +143,17 @@ def findMatch(d, db,conf=0.6):
     else:
         return noMatchString
 def label_faces_text(img,db):
+    """ returns text describing the faces seen
+    Parameters
+    ----------
+    img: the image with faces to be described
+    db: the database with which to match the faces
+    
+    Returns
+    -------
+    a string labeling the faces
+    'I see john, pual, and 2 people I don't know'
+    """
     upscale = 1
 
     detections = face_detect(img, upscale)  # returns sequence of face-detections
@@ -152,26 +192,22 @@ def label_faces_text(img,db):
         alexasay = alexasay.replace('$', '')
         return alexasay
 def rreplace(s,old,new,occurence):
+    """ replace instances in a string stating from the back
+
+    Parameters
+    ----------
+    s: the string to work with
+    old: the substring to replace
+    new: what to replace old with
+    occurence: how many times to replace
+
+    
+    Returns
+    -------
+    a string with the last 'occurence' instances of 'old' replaced with 'new'
+    """
     li = s.rsplit(old,occurence)
     return new.join(li)
-
-def label_faces(img,db):
-    fig,ax = plt.subplots()
-    ax.imshow(img)
-    # Number of times to upscale image before detecting faces.
-    # When would you want to increase this number?
-    upscale = 1
-
-    detections = face_detect(img, upscale)  # returns sequence of face-detections
-    detections = list(detections)
-    for det in detections:
-        # bounding box dimensions for detection
-        shape = shape_predictor(img, det)
-        descriptor = (np.array(face_rec_model.compute_face_descriptor(img, shape)))
-        text = findMatch(descriptor, db)
-        lst = numsfromrect(det)
-        ax.add_patch(patches.Rectangle( (lst[0],lst[1]), lst[2]-lst[0], lst[3]-lst[1], fill=False))
-        ax.text(lst[0], lst[1], text, fontsize=10, color='white')
 
 def saveDBnp(dirt,db,splt='\\'):
     """
@@ -179,6 +215,7 @@ def saveDBnp(dirt,db,splt='\\'):
     
     splt = \ in windows
          = / in mac
+    splt is not used at the moment
     """
     it = 0
     prevname = db[0][1]
@@ -208,6 +245,7 @@ def loadDBnp(dirt,splt = '\\'):
         
     splt = \ in windows
          = / in mac
+    splt is not used at the moment
     """
     import skimage.io as io
     import os
@@ -237,8 +275,18 @@ def loadDBnp(dirt,splt = '\\'):
     return db
 
 def addImgToDB(db,img,label,dirt):
-    """
-    Adds the face vector in img with label 'label' to db
+    """ Adds the face vector in img with label 'label' to db
+
+    Parameters
+    ----------
+    db: database of faces to work with
+    img: image with a face
+    label: the label to apply to the face, in most applications the name of the person
+    dirt: the directory to save the database to
+    
+    Returns
+    -------
+    either a success string or failure string
     """
     desc = get_desc(img)
     if np.isscalar( desc ) == -1:
