@@ -1,0 +1,29 @@
+	Intent Schema:
+{
+  "intents": [
+    {
+      "intent": "YesIntent"
+    },
+    {
+      "intent": "NoIntent"
+    },
+    {
+      "intent": "IdentifyIntent"
+    }
+  ]
+}
+
+
+
+	Sample Utterances:
+YesIntent yes
+YesIntent sure
+YesIntent yeah
+NoIntent no
+NoIntent nah
+NoIntent stop
+NoIntent cancel
+IdentifyIntent identify
+IdentifyIntent what is this song
+IdentifyIntent what song is this
+IdentifyIntent name this song

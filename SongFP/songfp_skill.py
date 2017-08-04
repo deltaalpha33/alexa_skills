@@ -33,6 +33,12 @@ def listen():
 
     return statement(name)
 
+@ask.intent("IdentifyIntent")
+def identify():
+    samples = a.read_mic(7)
+    name = fp.best(fp.match_song(fp.get_finger_print(fp.get_peaks(samples))))[:-4]
+    return statement(name)
+
 @ask.intent("NoIntent")
 def no_intent():
     msg = "Ok. Have a nice day."
