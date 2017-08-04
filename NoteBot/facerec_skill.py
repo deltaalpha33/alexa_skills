@@ -8,6 +8,27 @@ import numpy as np
 from face_label import face_labeling_personalized as fl
 from audio_input import audio
 from note_code import notepy
+"""
+Basic format for the skill:
+
+
+Start:
+    Recognized:
+        Leave Note:
+            Alexa asks for a name
+            record and exit|
+        Read Notes:
+            read all notes and exit|
+    More than 1:
+        Alexa says to check if you are exclusively visible and exits|
+    Not Recognized:
+        Alexa asks for your name
+        State a name:
+            take picture and quit|
+        Cancel:
+            quit|
+
+"""
 
 
 
@@ -22,13 +43,13 @@ DB = fl.loadDBnp("vectors")
 app = Flask(__name__)
 ask = Ask(app, '/')
 
+#states:
 #0: Begin
 #1: Asked for Name
 #2: asked for leave/read
 #3: Set to record
 #4: Set to read.
-#
-#
+
 state = 0
 name = ""
 nameGoal = ""
@@ -73,7 +94,7 @@ def leave_note(forName):
         print("ended.")
         state = 2
         return statement(forName + " what?")
-    return statement("That didn't make sense.[leave]")
+    return statement("That didn't make sense.")
 
 @ask.intent("ReadNoteIntent")
 def read_note():
@@ -90,7 +111,7 @@ def read_note():
         print(note.db)
         print("ended.")
         return statement("")
-    return statement("That didn't make any sense.[read]")
+    return statement("That didn't make any sense.")
 """
 @ask.intent("AddFaceIntent")
 def add_face(forName):
@@ -112,7 +133,7 @@ def add_face(forName):
         state = 2
         result = fl.addImgToDB(DB,fl.take_picture(),forName,"vectors")
         return statement(result)
-    return statement("That didn't make any sense.[add]")
+    return statement("That didn't make any sense.")
 
 @ask.intent("CancelIntent")
 def cancel():
@@ -122,7 +143,7 @@ def cancel():
     if state == 1:
         state = 2
         return statement("Smell ya later.")
-    return statement("That didn't make any sense.[cancel]")
+    return statement("That didn't make any sense.")
 
 
 @ask.session_ended
