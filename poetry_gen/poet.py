@@ -13,8 +13,8 @@ import glob
 import re, string
 import pickle
 
-from keras.models import Sequential
-from keras.layers import LSTM
+#from keras.models import Sequential
+#from keras.layers import LSTM
 
 
 
@@ -213,7 +213,7 @@ class Poet:
 
         self.n = 5
 
-        self.word_vectors = None
+        self.word_descriptors = None
 
     def load_text(self, path):
 
@@ -423,6 +423,8 @@ class Poet:
         #     model[x] = normalize(model[x])
 
     def create_word_descriptors(self):
+        self.load_bag_of_words()
+        important_words = self.bag_of_words.most_common()[1000:90000]
         file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
         tokens = list()
         for file_path in file_paths:
@@ -430,13 +432,15 @@ class Poet:
                 tokens.extend(f.read().split())
 
         #word embeddings
+        tokens = [token for token in tokens if token in important_words]
         sorted_words = generate_sorted_words(tokens)
         word2code = generate_word2code(sorted_words)
         codes = convert_tokens_to_codes(tokens, word2code)
         # CAUTION: Think about how big of a matrix will be created...
 
         # how many words to keep in vocabulary (will have one row per vocab word)
-        max_vocab_words = 50000
+        #max_vocab_words = len([word for word, count in alexa_poet.bag_of_words.most_common() if count > 10])
+        max_vocab_words = len(important_words)
 
         # how many words to treat as potential context words (will have one column per context word)
         max_context_words = 5000
@@ -461,11 +465,19 @@ class Poet:
         t1 = time.time()
         print("elapsed " + str(t1 - t0) + "s")
 
-        with open(self.sanitized_poetry_dataset_dir + "word_descriptors.pkl", 'wb') as f:
-            pickle.dump(my_vectors, f, pickle.HIGHEST_PROTOCOL)
-
 
         # save in word2vec format (first line has vocab_size and dimension; other lines have word followed by embedding)
+        with codecs.open("word2vec.txt", "w", "utf-8") as f:
+            f.write(str(max_vocab_words) + " " + str(d) + "\n")
+            
+            for i in range(max_vocab_words):
+                f.write(sorted_words[i] + " " + " ".join([str(x) for x in my_vectors[i,:]]) + "\n")
+
+        # with open(self.sanitized_poetry_dataset_dir + "word_descriptors.pkl", 'wb') as f:
+        #     pickle.dump(my_vectors, f, pickle.HIGHEST_PROTOCOL)
+
+
+        # # save in word2vec format (first line has vocab_size and dimension; other lines have word followed by embedding)
         # with codecs.open("test_vector.txt", "w", "utf-8") as f:
         #     f.write(str(len(sorted_words)) + " " + str(d) + "\n")
     def load_word_descriptors(self):
@@ -537,9 +549,11 @@ class Poet:
 
         return "".join(text) # list to str
 
+
 alexa_poet = Poet()
-#alexa_poet.create_word_descriptors()
-alexa_poet.load_word_descriptors()
+alexa_poet.create_word_descriptors()
+#alexa_poet.load_word_descriptors()
+#print(alexa_poet.word_descriptors["is"])
 #alexa_poet.load_text("poetry_dataset/")
 #alexa_poet.learn_documents_ngram()
 #alexa_poet.load_model_ngram()
@@ -555,6 +569,8 @@ alexa_poet.load_word_descriptors()
 # model = Sequential()
 # model.add(LSTM(32, input_shape=(10, 64)))
 
+#alexa_poet.load_bag_of_words()
+#print(len([word for word, count in alexa_poet.bag_of_words.most_common() if count > 10]))
             
                           
 
