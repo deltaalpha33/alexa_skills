@@ -28,10 +28,10 @@ To set up the server run `songfp_skill.py`
 python songfp_skill.py
 ```
 
-Use ngrok to tunnel port 5000:
+Use ngrok to tunnel port 2000:
 
 ```shell
-ngrok http 5000
+ngrok http 2000
 ```
 
 

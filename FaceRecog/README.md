@@ -25,10 +25,10 @@ To set up the server run `facerec_skill.py`
 python facerec_skill.py
 ```
 
-Use ngrok to tunnel port 5000:
+Use ngrok to tunnel port 4000:
 
 ```shell
-ngrok http 5000
+ngrok http 4000
 ```
 
 ## Alexa Setup

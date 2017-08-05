@@ -21,13 +21,13 @@ Install all necessary programs and python packages:
 To set up the server run `facerec_skill.py`
 
 ```shell
-python facerec_skill.py
+python notebot_skill.py
 ```
 
-Use ngrok to tunnel port 5000:
+Use ngrok to tunnel port 3000:
 
 ```shell
-ngrok http 5000
+ngrok http 3000
 ```
 
 ## Alexa Setup
