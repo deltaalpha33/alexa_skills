@@ -15,12 +15,8 @@ import pickle
 
 #from keras.models import Sequential
 #from keras.layers import LSTM
-from keras.models import Sequential
-from keras.layers import Dense, Activation
-from keras.layers import LSTM
-from keras.optimizers import RMSprop
-
-
+#from keras.layers import Dense, Activation
+#from keras.optimizers import RMSprop
 
 from sklearn.decomposition import TruncatedSVD, randomized_svd
 from gensim.models.keyedvectors import KeyedVectors
@@ -31,8 +27,8 @@ import time
 
 from numba import njit
 
-
 def generate_sorted_words(tokens):
+
     """ Create list of unique words sorted by count in descending order
         
         Parameters
@@ -46,12 +42,13 @@ def generate_sorted_words(tokens):
             A list of unique tokens sorted in descending order, e.g., ["the", "in", cat"]
         
     """
-    # SOLUTION
     counter = Counter(tokens)
     words = [word for word, count in counter.most_common()]
+
     return words
 
 def generate_word2code(sorted_words):
+
     """ Create dict that maps a word to its position in the sorted list of words
     
         Parameters
@@ -65,11 +62,11 @@ def generate_word2code(sorted_words):
             A dictionary that maps a word to an integer code, e.g., {"b": 0, "c": 1, "a": 2}
         
     """
-    # SOLUTION
     word2code = {w : i for i, w in enumerate(sorted_words)}
     return word2code
 
 def convert_tokens_to_codes(tokens, word2code):
+
     """ Convert tokens to codes.
     
         Parameters
@@ -84,17 +81,34 @@ def convert_tokens_to_codes(tokens, word2code):
         list(int)
             A list of codes corresponding to the input words, e.g., [0, 1, 2].
     """
-    # SOLUTION
     return [word2code[token] for token in tokens]
 
 
 def reduce(X, n_components, power=0.0):
+
+    """
+    Collapse vectors -> reduce dimensionality of arrays for better understanding/processing.
+    
+    Parameters
+    ----------
+    X : array
+        Matrix of X counts of words appearing in context window
+    
+    n_components : int
+        Number of singular values to extract
+
+    Returns
+    -------
+    """
     U, Sigma, VT = randomized_svd(X, n_components=n_components)
+
     # note: TruncatedSVD always multiplies U by Sigma, but can tune results by just using U or raising Sigma to a power
+
     return U * (Sigma**power)
 
 @njit
 def generate_word_by_context(codes, max_vocab_words=1000, max_context_words=1000, context_size=2, weight_by_distance=False):
+
     """ Create matrix of vocab word by context word (possibly weighted) co-occurrence counts.
     
         Parameters
@@ -158,40 +172,43 @@ def generate_word_by_context(codes, max_vocab_words=1000, max_context_words=1000
     
     # initialize matrix (with dtype="float32" to reduce required memory)
     
-    # SOLUTION
     X = np.zeros((max_vocab_words, max_context_words))
 
     # slide window along sequence and count "center word code" / "context word code" co-occurrences
     # Hint: let main loop index indicate the center of the window
     
-    # SOLUTION
     for i in range(context_size, len(codes) - context_size):
-#         if i % 100000 == 0:
-#             print("i = " + str(i) + ": " + str(1.0 * i / len(codes)) + "%")
 
         center_code = codes[i]
         if center_code < max_vocab_words:
+
             # left side
             for j in range(1, context_size + 1):
+
                 context_code = codes[i - j]
+
                 if context_code < max_context_words:
                     value = 1.0
-                    if weight_by_distance:
+                    i
+                    f weight_by_distance:
                         value = 1.0 / j
-                    X[center_code, context_code] += value
+
+                X[center_code, context_code] += value
+
             # right side
             for j in range(1, context_size + 1):
+
                 context_code = codes[i + j]
+
                 if context_code < max_context_words:
                     value = 1.0
+
                     if weight_by_distance:
                         value = 1.0 / j
+
                     X[center_code, context_code] += value
 
     return X
-
-
-
 
 class Poet:
 
@@ -219,6 +236,8 @@ class Poet:
 
         self.word_descriptors = None
 
+        self.word_representations = list()
+
     def sanitize_text(self, path):
 
         """
@@ -234,11 +253,15 @@ class Poet:
         file_paths = glob.glob(path +'*.txt')
         punc_regex_string = [ "(" + re.escape(escape_char) + ")" + "|" for escape_char in string.punctuation.replace("'", '').replace("\\", '')]
         #punc_regex = re.compile('([{}])*'.format(re.escape(string.punctuation.replace("'", '').replace("\\", ''))))
+
         punc_regex = re.compile(''.join(punc_regex_string))
-        alpha_split = re.compile("([A-Z][^A-Z]*)*")
-        number_regex = re.compile('[[0-9]+]|[IVXLCM]+')
+        alpha_split = re.compile("([A-Z][^A-Z]*)*") # remove all-caps words
+        number_regex = re.compile('[[0-9]+]|[IVXLCM]+') # remove numbers & Roman Numerals
+
         #print(re.sub(number_regex, "", ("abc IV")))
+
         for file_num, file_path in enumerate(file_paths):
+            
             with io.open(file_path,'r',encoding='utf8') as f:
                 unicode_data = f.read()
 
@@ -261,17 +284,15 @@ class Poet:
                 with open(self.sanitized_poetry_dataset_dir + str(file_num) + ".txt", 'w') as f:
                     f.write(' '.join(token_list))
 
-                
-
+# ---------- TODO: DOCUMENT ------------
     def create_bag_of_words(self):
         """
-
-
         """
         punc_regex = re.compile('[{}]'.format(re.escape(string.punctuation)))
 
         file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
         word_counter = Counter()
+        
         for file_path in file_paths:
 
             with open(file_path, 'r') as f:
@@ -279,7 +300,6 @@ class Poet:
                 document = punc_regex.sub('', document)
                 document_words = document.split()
                 word_counter.update(document_words)
-
 
         with open(self.sanitized_poetry_dataset_dir + "bag_of_words.pkl", 'wb') as f:
             pickle.dump(word_counter, f, pickle.HIGHEST_PROTOCOL)
@@ -289,10 +309,9 @@ class Poet:
             self.bag_of_words = pickle.load(f)
 
 
+# --------- TODO: DOCUMENT ------------
     def learn_documents_ngram(self):
         """
-
-
         """
         punc_regex = re.compile('[{}]'.format(re.escape(string.punctuation)))
         space_regex = re.compile(' +')
@@ -310,15 +329,24 @@ class Poet:
                 document_counts.append(char_counter)
         self.save_model_ngram()
 
+# -------- TODO: DOCUMENT --------------
     def save_model_ngram(self):
+        """
+        """
         with open(self.sanitized_poetry_dataset_dir + "n_gram_model.pkl", 'wb') as f:
             pickle.dump(self.model, f, pickle.HIGHEST_PROTOCOL)
 
+# -------- TODO: DOCUMENT --------------
     def load_model_ngram(self):
+        """
+        """
         with open(self.sanitized_poetry_dataset_dir + "n_gram_model.pkl", 'rb') as f:
             self.model = pickle.load(f)
-
+            
+# -------- TODO: DOCUMENT --------------
     def learn_documents_word_gram(self):
+        """
+        """
         file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
         document_counts = list()
         for file_path in file_paths:
@@ -331,14 +359,21 @@ class Poet:
                 document_counts.append(word_counter)
         self.save_model_word_gram()
 
+# -------- TODO: DOCUMENT --------------
     def save_model_word_gram(self):
+        """
+        """
         with open(self.sanitized_poetry_dataset_dir + "word_gram_model.pkl", 'wb') as f:
             pickle.dump(self.model, f, pickle.HIGHEST_PROTOCOL)
 
+# -------- TODO: DOCUMENT --------------            
     def load_model_word_gram(self):
+        """
+        """
         with open(self.sanitized_poetry_dataset_dir + "word_gram_model.pkl", 'rb') as f:
             self.model = pickle.load(f)
-    
+
+            
     def unzip(self, pairs):
         """
         Splits list of pairs (tuples) into separate lists.
@@ -353,10 +388,12 @@ class Poet:
         tuple
 
         """
-
         return tuple(zip(*pairs))
 
+# -------- TODO: DOCUMENT --------------    
     def char_count(self):
+        """
+        """
 
         letters = "abcdefghijklmnopqrstuvwxyz"
 
@@ -380,13 +417,12 @@ class Poet:
         total = sum(cnt for cnt in counts.values())
         frequencies = [ (char, cnt/total) for char, cnt in counts.items()]
 
-        # sanity check: confirm that the frequencies total to 1
-
-        #print(sum(freq for _, freq in frequencies))
-
         return frequencies
 
+# ---------- TODO: DOCUMENT --------------
     def nomalize_model(self):
+        """
+        """
         for cnt in self.model:
             self.lm[cnt] = self.normalize(self.model[cnt])
 
@@ -409,8 +445,6 @@ class Poet:
 
         """
 
-
-
         # create the initial padded history
         history = "~"*(self.n-1)
 
@@ -426,7 +460,10 @@ class Poet:
         # for x in model:
         #     model[x] = normalize(model[x])
 
+# ----------- TODO: DOCUMENT --------------
     def create_word_descriptors(self):
+        """
+        """
         self.load_bag_of_words()
         important_words = self.bag_of_words.most_common()[1000:90000]
         file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
@@ -449,7 +486,6 @@ class Poet:
         # how many words to treat as potential context words (will have one column per context word)
         max_context_words = 5000
 
-
         t0 = time.time()
         X_wiki = generate_word_by_context(codes, 
                                           max_vocab_words=max_vocab_words, 
@@ -458,7 +494,6 @@ class Poet:
                                           weight_by_distance=True)
         t1 = time.time()
         print("elapsed = " + str(t1 - t0) + "s")
-
 
         # apply log to raw counts (which has been shown to improve results)
         X_log = np.log10(1 + X_wiki, dtype="float32")
@@ -484,8 +519,11 @@ class Poet:
         # # save in word2vec format (first line has vocab_size and dimension; other lines have word followed by embedding)
         # with codecs.open("test_vector.txt", "w", "utf-8") as f:
         #     f.write(str(len(sorted_words)) + " " + str(d) + "\n")
-    def load_word_descriptors(self):
 
+# ----------- TODO: DOCUMENT --------------
+    def load_word_descriptors(self):
+        """
+        """
         # load back in
         with open(self.sanitized_poetry_dataset_dir + "word_descriptors.pkl", 'rb') as f:
             self.word_descriptors =  pickle.load(f)
@@ -553,7 +591,10 @@ class Poet:
 
         return "".join(text) # list to str
 
+# ---------- TODO: DOCUMENT --------------
     def get_longest_string(self):
+        """
+        """
         file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
         longest_token_len = 0
         for file_path in file_paths:
@@ -567,6 +608,32 @@ class Poet:
         print("longest string is " + str(len(max(doc, key=len))))
         return longest_token_len
 
+    def create_word_representations(self):
+        
+        """
+        Create integer representations for words from bag.
+
+        Returns
+        -------
+        word_reps : numpy.ndarray
+            Array of integers (32-bit) representing words
+        """
+
+        # create dictionary mapping counter -> word from bag of words
+        word_count_dict = dict(self.bag_of_words)
+
+        # move words to list to represent as integers
+        words = list()
+        
+        for cnt, wrd in word_count_dict.items():
+            words.append(wrd)
+
+        # represent words as 32-bit integers
+
+        self.word_representations = 
+        pass
+
+# ---------- TODO: DOCUMENT AND IMPLEMENT --------------
     def train_lstm(self):
         phrase_size = 3
         
