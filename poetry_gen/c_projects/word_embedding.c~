@@ -1,0 +1,22 @@
+/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4 -*-  */
+/*
+ * main.c
+ * Copyright (C) 2017 
+ * 
+ */
+
+char str[999];
+FILE * file;
+file = fopen( "test.txt" , "r");
+if (file) {
+    while (fscanf(file, "%s", str)!=EOF)
+        printf("%s",str);
+    fclose(file);
+}
+#include <stdio.h>
+int main()
+{
+	printf("Hello world\n");
+	return (0);
+}
+

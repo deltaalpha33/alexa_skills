@@ -13,11 +13,6 @@ import glob
 import re, string
 import pickle
 
-#from keras.models import Sequential
-#from keras.layers import LSTM
-#from keras.layers import Dense, Activation
-#from keras.optimizers import RMSprop
-
 from sklearn.decomposition import TruncatedSVD, randomized_svd
 from gensim.models.keyedvectors import KeyedVectors
 from collections import defaultdict, Counter
@@ -189,8 +184,7 @@ def generate_word_by_context(codes, max_vocab_words=1000, max_context_words=1000
 
                 if context_code < max_context_words:
                     value = 1.0
-                    i
-                    f weight_by_distance:
+                    if weight_by_distance:
                         value = 1.0 / j
 
                 X[center_code, context_code] += value
@@ -237,6 +231,8 @@ class Poet:
         self.word_descriptors = None
 
         self.word_representations = list()
+
+        self.token_id_dict = dict()
 
     def sanitize_text(self, path):
 
@@ -461,72 +457,6 @@ class Poet:
         #     model[x] = normalize(model[x])
 
 # ----------- TODO: DOCUMENT --------------
-    def create_word_descriptors(self):
-        """
-        """
-        self.load_bag_of_words()
-        important_words = self.bag_of_words.most_common()[1000:90000]
-        file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
-        tokens = list()
-        for file_path in file_paths:
-            with open(file_path, 'r') as f:
-                tokens.extend(f.read().split())
-
-        #word embeddings
-        tokens = [token for token in tokens if token in important_words]
-        sorted_words = generate_sorted_words(tokens)
-        word2code = generate_word2code(sorted_words)
-        codes = convert_tokens_to_codes(tokens, word2code)
-        # CAUTION: Think about how big of a matrix will be created...
-
-        # how many words to keep in vocabulary (will have one row per vocab word)
-        #max_vocab_words = len([word for word, count in alexa_poet.bag_of_words.most_common() if count > 10])
-        max_vocab_words = len(important_words)
-
-        # how many words to treat as potential context words (will have one column per context word)
-        max_context_words = 5000
-
-        t0 = time.time()
-        X_wiki = generate_word_by_context(codes, 
-                                          max_vocab_words=max_vocab_words, 
-                                          max_context_words=max_context_words, 
-                                          context_size=4,
-                                          weight_by_distance=True)
-        t1 = time.time()
-        print("elapsed = " + str(t1 - t0) + "s")
-
-        # apply log to raw counts (which has been shown to improve results)
-        X_log = np.log10(1 + X_wiki, dtype="float32")
-
-        t0 = time.time()
-        d = 200
-        my_vectors = reduce(X_log, n_components=d)
-        t1 = time.time()
-        print("elapsed " + str(t1 - t0) + "s")
-
-
-        # save in word2vec format (first line has vocab_size and dimension; other lines have word followed by embedding)
-        with codecs.open("word2vec.txt", "w", "utf-8") as f:
-            f.write(str(max_vocab_words) + " " + str(d) + "\n")
-            
-            for i in range(max_vocab_words):
-                f.write(sorted_words[i] + " " + " ".join([str(x) for x in my_vectors[i,:]]) + "\n")
-
-        # with open(self.sanitized_poetry_dataset_dir + "word_descriptors.pkl", 'wb') as f:
-        #     pickle.dump(my_vectors, f, pickle.HIGHEST_PROTOCOL)
-
-
-        # # save in word2vec format (first line has vocab_size and dimension; other lines have word followed by embedding)
-        # with codecs.open("test_vector.txt", "w", "utf-8") as f:
-        #     f.write(str(len(sorted_words)) + " " + str(d) + "\n")
-
-# ----------- TODO: DOCUMENT --------------
-    def load_word_descriptors(self):
-        """
-        """
-        # load back in
-        with open(self.sanitized_poetry_dataset_dir + "word_descriptors.pkl", 'rb') as f:
-            self.word_descriptors =  pickle.load(f)
 
     def generate_letter(self, history):
         """
@@ -590,52 +520,6 @@ class Poet:
             history = str(text[-self.n + 1:])
 
         return "".join(text) # list to str
-
-# ---------- TODO: DOCUMENT --------------
-    def get_longest_string(self):
-        """
-        """
-        file_paths = glob.glob(self.sanitized_poetry_dataset_dir +'*.txt')
-        longest_token_len = 0
-        for file_path in file_paths:
-            with open(file_path, 'r') as f:
-                doc = f.read().split()
-                local_max_token_size = len(max(doc, key=len))
-                if local_max_token_size > longest_token_len:
-                    longest_token_len = local_max_token_size
-
-                        
-        print("longest string is " + str(len(max(doc, key=len))))
-        return longest_token_len
-
-    def create_word_representations(self):
-        
-        """
-        Create integer representations for words from bag.
-
-        Returns
-        -------
-        word_reps : numpy.ndarray
-            Array of integers (32-bit) representing words
-        """
-
-        # create dictionary mapping counter -> word from bag of words
-        word_count_dict = dict(self.bag_of_words)
-
-        # move words to list to represent as integers
-        words = list()
-        
-        for cnt, wrd in word_count_dict.items():
-            words.append(wrd)
-
-        # represent words as 32-bit integers
-
-        self.word_representations = 
-        pass
-
-# ---------- TODO: DOCUMENT AND IMPLEMENT --------------
-    def train_lstm(self):
-        phrase_size = 3
         
 
 
@@ -644,17 +528,15 @@ class Poet:
 
 
 alexa_poet = Poet()
-alexa_poet.load_bag_of_words()
-alexa_poet.train_lstm()
-#alexa_poet.load_word_descriptors()
-#print(alexa_poet.word_descriptors["is"])
+
+
 #alexa_poet.load_text("poetry_dataset/")
 #alexa_poet.learn_documents_ngram()
-#alexa_poet.load_model_ngram()
-#alexa_poet.nomalize_model()
+alexa_poet.load_model_ngram()
+alexa_poet.nomalize_model()
 #print(alexa_poet.lm["~~"])
 #print(alexa_poet.generate_letter("~~"))
-#print(alexa_poet.generate_text())
+print(alexa_poet.generate_text())
 
 #recurrent.recurrent([0,0,0], [1,2,3])
 
