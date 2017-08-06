@@ -1,9 +1,0 @@
-# depslib dependency file v1.0
-1501943721 source:/home/delta/mit-course/git/alexa_skills/poetry_gen/word_embedding/word_embedding/main.cpp
-	<iostream>
-	<fstream>
-	<string>
-	"boost/filesystem.hpp"
-	<boost/foreach.hpp>
-	</opt/anaconda/include/python3.6m/Python.h>
-
