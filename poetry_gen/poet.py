@@ -536,7 +536,7 @@ alexa_poet.load_model_ngram()
 alexa_poet.nomalize_model()
 #print(alexa_poet.lm["~~"])
 #print(alexa_poet.generate_letter("~~"))
-print(alexa_poet.generate_text())
+#print(alexa_poet.generate_text())
 
 #recurrent.recurrent([0,0,0], [1,2,3])
 

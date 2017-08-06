@@ -31,7 +31,7 @@ def start_skill():
 
 @ask.intent("YesIntent")
 def make_poetry():
-    return statement(alexa_poet.generate_text())
+    return statement(alexa_poet.generate_text()[10:350])
 
 @ask.intent("NoIntent")
 def no_intent():
